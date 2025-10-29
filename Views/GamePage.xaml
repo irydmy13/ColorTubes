@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ColorTubes.Views.GamePage"
+    x:Name="GamePageRoot"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ColorTubes.ViewModels"
+    xmlns:conv="clr-namespace:ColorTubes.Converters"
+    xmlns:resources="clr-namespace:ColorTubes.Resources.Localization"
+    Title="{x:Static resources:AppResources.Menu_Game}">
+
+    <!-- BindingContext задаём в .xaml.cs -->
+    <ContentPage.Resources>
+        <conv:AmountToHeightConverter x:Key="AmountToHeight" />
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+        <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+            <Button Text="⟲" Command="{Binding UndoCommand}" />
+            <Label Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center"
+                   Text="{Binding Moves, StringFormat='Ходов: {0}'}" FontSize="18" />
+            <Button Grid.Column="2" Text="Сброс" Command="{Binding ResetCommand}" />
+        </Grid>
+
+        <ScrollView Orientation="Horizontal">
+            <HorizontalStackLayout Spacing="16" Padding="8">
+                <CollectionView ItemsSource="{Binding Tubes}"
+                                ItemsLayout="HorizontalList"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid WidthRequest="80" HeightRequest="240">
+                                <Frame CornerRadius="18" BorderColor="#CCCCCC" BackgroundColor="#00000000"
+                                       Padding="6" VerticalOptions="Fill" HorizontalOptions="Fill">
+                                    <Grid VerticalOptions="End" RowSpacing="4">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SelectTubeCommand, Source={x:Reference GamePageRoot}}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Grid BindableLayout.ItemsSource="{Binding Segments}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate>
+                                                    <BoxView
+                                                        HeightRequest="{Binding Amount, Converter={StaticResource AmountToHeight}, ConverterParameter=40}"
+                                                        BackgroundColor="{Binding ColorHex}"
+                                                        CornerRadius="8"
+                                                        Margin="0,4,0,0" />
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </Grid>
+                                    </Grid>
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </HorizontalStackLayout>
+        </ScrollView>
+    </VerticalStackLayout>
+</ContentPage>

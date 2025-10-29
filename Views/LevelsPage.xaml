@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ColorTubes.Views.LevelsPage"
+    x:Name="LevelsPageRoot"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:resources="clr-namespace:ColorTubes.Resources.Localization"
+    Title="{x:Static resources:AppResources.Menu_Levels}">
+
+    <!-- BindingContext задаётся в .xaml.cs -->
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+        <Button Text="Добавить уровень" Command="{Binding AddCommand}" />
+        <CollectionView ItemsSource="{Binding Levels}" SelectionMode="None" x:Name="LevelsList">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="8" ColumnDefinitions="*,Auto,Auto" BackgroundColor="#1A000000" Margin="0,6">
+                        <Label Text="{Binding Name}" VerticalTextAlignment="Center" />
+                        <Button Grid.Column="1" Text="Ред."
+                                Command="{Binding BindingContext.EditCommand, Source={x:Reference LevelsPageRoot}}"
+                                CommandParameter="{Binding .}" />
+                        <Button Grid.Column="2" Text="Удал."
+                                Command="{Binding BindingContext.DeleteCommand, Source={x:Reference LevelsPageRoot}}"
+                                CommandParameter="{Binding .}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

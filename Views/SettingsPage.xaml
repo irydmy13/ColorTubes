@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ColorTubes.Views.SettingsPage"
+    x:Name="SettingsPageRoot"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ColorTubes.ViewModels"
+    xmlns:resources="clr-namespace:ColorTubes.Resources.Localization"
+    Title="{x:Static resources:AppResources.Menu_Settings}">
+
+    <!-- ВНИМАНИЕ: BindingContext задаём в .xaml.cs через ServiceHelper -->
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Label Text="{x:Static resources:AppResources.Settings_Language}"
+                   FontAttributes="Bold" />
+
+            <HorizontalStackLayout Spacing="12">
+                <ImageButton Source="flag_ru.png" WidthRequest="48" HeightRequest="32"
+                             Clicked="LangRu_Clicked" />
+                <ImageButton Source="flag_en.png" WidthRequest="48" HeightRequest="32"
+                             Clicked="LangEn_Clicked" />
+                <ImageButton Source="flag_et.png" WidthRequest="48" HeightRequest="32"
+                             Clicked="LangEt_Clicked" />
+            </HorizontalStackLayout>
+
+            <Label Text="{x:Static resources:AppResources.Settings_Theme}"
+                   FontAttributes="Bold" />
+
+            <Picker ItemsSource="{x:Static vm:ThemeOptions.All}"
+                    SelectedItem="{Binding Theme}" />
+
+            <Grid ColumnDefinitions="*,Auto" Padding="0,8,0,0">
+                <Label Text="{x:Static resources:AppResources.Settings_Sound}" />
+                <Switch Grid.Column="1" IsToggled="{Binding SoundOn}" />
+            </Grid>
+
+            <Button Text="Сохранить" Command="{Binding SaveCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,20 +1,12 @@
-using ColorTubes.Helpers;
 using ColorTubes.ViewModels;
 
 namespace ColorTubes.Views;
 
 public partial class LevelsPage : ContentPage
 {
-    public LevelsPage()
+    public LevelsPage(LevelsViewModel vm)
     {
         InitializeComponent();
-        BindingContext = ServiceHelper.GetService<LevelsViewModel>();
-    }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        if (BindingContext is LevelsViewModel vm)
-            await vm.LoadAsync();
+        BindingContext = vm; // DI: VM приходит из MauiProgram
     }
 }

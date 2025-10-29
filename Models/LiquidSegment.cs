@@ -1,8 +1,27 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace ColorTubes.Models;
 
-//ќдин цветной сегмент жидкости (Amount Ц высота сло€ 1..4)
-public class LiquidSegment
+/// <summary>ќдин цветной сегмент жидкости (Amount Ц высота сло€ 1..4).</summary>
+public class LiquidSegment : INotifyPropertyChanged
 {
-    public string ColorHex { get; set; } = "#FF0000";
-    public int Amount { get; set; } = 1;
+    string _colorHex = "#FF0000";
+    int _amount = 1;
+
+    public string ColorHex
+    {
+        get => _colorHex;
+        set { if (_colorHex != value) { _colorHex = value; OnPropertyChanged(); } }
+    }
+
+    public int Amount
+    {
+        get => _amount;
+        set { if (_amount != value) { _amount = value; OnPropertyChanged(); } }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

@@ -1,37 +1,18 @@
+using Microsoft.Maui.Storage;
+
 namespace ColorTubes.Services;
 
-public class SettingsService
+public sealed class SettingsService
 {
-    const string KEY_LANG = "lang";
-    const string KEY_THEME = "theme";
-    const string KEY_SOUND = "sound";
+    const string KeyLang = "Settings.Language";
+    const string KeyTheme = "Settings.Theme";
+    const string KeySound = "Settings.Sound";
 
-    public string Language { get; private set; } = "ru";
-    public AppThemeOption Theme { get; private set; } = AppThemeOption.System;
-    public bool SoundOn { get; private set; } = true;
+    public string Language => Preferences.Get(KeyLang, "ru"); // по умолчанию русский
+    public AppThemeOption Theme => (AppThemeOption)Preferences.Get(KeyTheme, (int)AppThemeOption.System);
+    public bool SoundOn => Preferences.Get(KeySound, true);
 
-    public void Load()
-    {
-        Language = Preferences.Get(KEY_LANG, "ru");
-        Theme = Enum.TryParse(Preferences.Get(KEY_THEME, "System"), out AppThemeOption t) ? t : AppThemeOption.System;
-        SoundOn = Preferences.Get(KEY_SOUND, true);
-    }
-
-    public void SaveLanguage(string lang)
-    {
-        Language = lang;
-        Preferences.Set(KEY_LANG, lang);
-    }
-
-    public void SaveTheme(AppThemeOption theme)
-    {
-        Theme = theme;
-        Preferences.Set(KEY_THEME, theme.ToString());
-    }
-
-    public void SaveSound(bool on)
-    {
-        SoundOn = on;
-        Preferences.Set(KEY_SOUND, on);
-    }
+    public void SaveLanguage(string lang) => Preferences.Set(KeyLang, string.IsNullOrWhiteSpace(lang) ? "ru" : lang);
+    public void SaveTheme(AppThemeOption theme) => Preferences.Set(KeyTheme, (int)theme);
+    public void SaveSound(bool on) => Preferences.Set(KeySound, on);
 }

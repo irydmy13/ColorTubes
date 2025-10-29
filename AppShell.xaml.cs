@@ -7,6 +7,7 @@ public partial class AppShell : Shell
     public AppShell()
     {
         InitializeComponent();
-        Routing.RegisterRoute(nameof(LevelEditorPage), typeof(LevelEditorPage));
+
+        Routing.RegisterRoute("game", typeof(Views.GamePage));
     }
 }

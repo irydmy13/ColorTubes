@@ -1,4 +1,5 @@
 using ColorTubes.Helpers;
+using ColorTubes.Services;
 using ColorTubes.ViewModels;
 
 namespace ColorTubes.Views;
@@ -8,10 +9,11 @@ public partial class SettingsPage : ContentPage
     public SettingsPage()
     {
         InitializeComponent();
+        // ¬ћ получаем через ServiceHelper Ч как у теб€ и было
         BindingContext = ServiceHelper.GetService<SettingsViewModel>();
     }
 
-    // ћен€ем €зык и сразу примен€ем настройки (вызов SaveCommand)
+    // ----- я«џ  -----
     private void LangRu_Clicked(object? sender, EventArgs e)
     {
         var vm = (SettingsViewModel)BindingContext;
@@ -30,6 +32,28 @@ public partial class SettingsPage : ContentPage
     {
         var vm = (SettingsViewModel)BindingContext;
         vm.Language = "et";
+        vm.SaveCommand.Execute(null);
+    }
+
+    // ----- “≈ћј -----
+    private void ThemeSystem_Clicked(object? sender, EventArgs e)
+    {
+        var vm = (SettingsViewModel)BindingContext;
+        vm.Theme = AppThemeOption.System;
+        vm.SaveCommand.Execute(null);
+    }
+
+    private void ThemeLight_Clicked(object? sender, EventArgs e)
+    {
+        var vm = (SettingsViewModel)BindingContext;
+        vm.Theme = AppThemeOption.Light;
+        vm.SaveCommand.Execute(null);
+    }
+
+    private void ThemeDark_Clicked(object? sender, EventArgs e)
+    {
+        var vm = (SettingsViewModel)BindingContext;
+        vm.Theme = AppThemeOption.Dark;
         vm.SaveCommand.Execute(null);
     }
 }

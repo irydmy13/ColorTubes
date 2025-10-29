@@ -2,9 +2,11 @@
 <Application
     x:Class="ColorTubes.App"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:conv="clr-namespace:ColorTubes.Converters">
     <Application.Resources>
         <ResourceDictionary>
+            <conv:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>

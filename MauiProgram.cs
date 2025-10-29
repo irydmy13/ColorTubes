@@ -1,6 +1,4 @@
 ﻿using ColorTubes.Services;
-using ColorTubes.ViewModels;
-using ColorTubes.Views;
 
 namespace ColorTubes;
 
@@ -9,33 +7,35 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-
         builder
             .UseMauiApp<App>()
-            // .UseMauiCommunityToolkit() // если используешь Toolkit
-            .ConfigureFonts(fonts =>
+            .ConfigureFonts(f =>
             {
-                // fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                f.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                f.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // ---- Сервисы (Singleton)
-        builder.Services.AddSingleton<DatabaseService>();      // если ещё не создал — потом добавишь реализацию
+        // Сервисы
         builder.Services.AddSingleton<ThemeService>();
-        builder.Services.AddSingleton<LocalizationService>();
-        builder.Services.AddSingleton<AudioService>();
         builder.Services.AddSingleton<SettingsService>();
+        builder.Services.AddSingleton<LocalizationService>();
+        builder.Services.AddSingleton<DatabaseService>();
 
-        // ---- VM + Views
-        builder.Services.AddTransient<SettingsViewModel>();
-        builder.Services.AddTransient<SettingsPage>();
+        // ViewModels
+        builder.Services.AddSingleton<ViewModels.SettingsViewModel>();
+        builder.Services.AddSingleton<ViewModels.LevelsViewModel>();
+        builder.Services.AddTransient<ViewModels.GameViewModel>();
 
-        // Заглушки для остальных страниц (если уже созданы — DI подключит их)
-        builder.Services.AddTransient<GameViewModel>();
-        builder.Services.AddTransient<GamePage>();
-        builder.Services.AddTransient<LevelsViewModel>();
-        builder.Services.AddTransient<LevelsPage>();
-        builder.Services.AddTransient<LevelEditorPage>();
+        // Pages
+        builder.Services.AddSingleton<Views.SettingsPage>();
+        builder.Services.AddSingleton<Views.LevelsPage>();
+        builder.Services.AddTransient<Views.GamePage>();
 
-        return builder.Build();
+        var app = builder.Build();
+
+        var db = app.Services.GetRequiredService<DatabaseService>();
+        Task.Run(db.InitAsync).Wait();
+
+        return app;
     }
 }

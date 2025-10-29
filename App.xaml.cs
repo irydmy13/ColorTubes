@@ -1,19 +1,16 @@
-﻿using ColorTubes.Services;
-
-namespace ColorTubes;
+﻿namespace ColorTubes;
 
 public partial class App : Application
 {
-    public App(ThemeService theme, LocalizationService loc, SettingsService settings, AudioService audio)
+    private readonly Services.ThemeService _themeService;
+
+    // App получает ThemeService через DI
+    public App(Services.ThemeService themeService)
     {
         InitializeComponent();
 
-        settings.Load();
-        theme.SetTheme(settings.Theme);
-        loc.SetCulture(settings.Language);
-
-        // Инициализируем звуки один раз
-        _ = audio.InitAsync();
+        _themeService = themeService;
+        _themeService.ApplySavedTheme(); // применяем тему при запуске
 
         MainPage = new AppShell();
     }

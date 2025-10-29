@@ -1,22 +1,27 @@
 using System.Globalization;
-using ColorTubes.Resources.Localization;
+using System.Resources;
 
 namespace ColorTubes.Services;
-public class LocalizationService
+
+// ѕроста€ локализаци€ через .resx. ћен€ет культуру на лету
+public sealed class LocalizationService
 {
-    public CultureInfo CurrentCulture { get; private set; } = CultureInfo.GetCultureInfo("ru");
+    public CultureInfo CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture;
 
-    public void SetCulture(string lang)
+    // если используешь AppResources.resx
+    private readonly ResourceManager _rm = Resources.Localization.AppResources.ResourceManager;
+
+    public void SetCulture(string langCode)
     {
-        CurrentCulture = CultureInfo.GetCultureInfo(lang);
-        AppResources.Culture = CurrentCulture;
+        if (string.IsNullOrWhiteSpace(langCode)) langCode = "ru";
+        var ci = new CultureInfo(langCode);
+        CultureInfo.CurrentUICulture = ci;
+        CultureInfo.CurrentCulture = ci;
+        CurrentCulture = ci;
 
-        Thread.CurrentThread.CurrentUICulture = CurrentCulture;
-        Thread.CurrentThread.CurrentCulture = CurrentCulture;
-
-        // ≈сли нужно оповещать страницы о смене Ч можно добавить MessagingCenter/WeakReferenceMessenger
+        // дл€ статических ресурсов, если нужно:
+        Resources.Localization.AppResources.Culture = ci;
     }
 
-    public string T(string key) =>
-        AppResources.ResourceManager.GetString(key, AppResources.Culture) ?? key;
+    public string T(string key) => _rm.GetString(key, CurrentCulture) ?? key;
 }

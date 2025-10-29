@@ -2,15 +2,25 @@
 
 namespace ColorTubes.Converters;
 
-//amount (1..4) -> высота в пикселях (unit по параметру, дефолт 40)
-public class AmountToHeightConverter : IValueConverter
+// Конвертирует Amount (1..4) в высоту слоя.
+// ConverterParameter — высота 1 юнита в пикселях (double).
+
+public sealed class AmountToHeightConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not int amt) return 0;
-        int unit = 40;
-        if (parameter is string s && int.TryParse(s, out var p)) unit = p;
-        return Math.Max(0, amt * unit);
+        var amount = value is int i ? i : 0;
+
+        double unit = 48; // по умолчанию
+        if (parameter != null &&
+            double.TryParse(parameter.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var p))
+        {
+            unit = p;
+        }
+
+        return amount * unit;
     }
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+
+    public object ConvertBack(object value, Type targetType, object? parameter, CultureInfo culture)
+        => Binding.DoNothing;
 }

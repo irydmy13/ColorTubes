@@ -3,41 +3,67 @@ using ColorTubes.Models;
 
 namespace ColorTubes.Services;
 
-//Простая обёртка над SQLite. Хранит уровни и рекорды.
 public class DatabaseService
 {
     private readonly SQLiteAsyncConnection _db;
 
     public DatabaseService()
     {
-        var path = Path.Combine(FileSystem.AppDataDirectory, "colortubes.db");
-        _db = new SQLiteAsyncConnection(path);
-        _ = InitializeAsync();
+        var dbPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ColorTubes.db3");
+        _db = new SQLiteAsyncConnection(dbPath);
     }
 
-    private async Task InitializeAsync()
+    public async Task InitAsync()
     {
+        await _db.CreateTableAsync<PlayerScore>();
         await _db.CreateTableAsync<Level>();
-        await _db.CreateTableAsync<Score>();
+
+        // если нет ни одного уровня — создадим 5 заглушек
+        var count = await _db.Table<Level>().CountAsync();
+        if (count == 0)
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                await _db.InsertAsync(new Level
+                {
+                    Name = $"Уровень {i}",
+                    LayoutJson = "[]" // пусто; редактор уровня может заполнить
+                });
+            }
+        }
     }
 
-    // ---- Levels (CRUD)
-    public Task<List<Level>> GetLevelsAsync() => _db.Table<Level>().OrderBy(l => l.Id).ToListAsync();
-    public Task<int> AddLevelAsync(Level l) => _db.InsertAsync(l);
-    public Task<int> UpdateLevelAsync(Level l) => _db.UpdateAsync(l);
-    public Task<int> DeleteLevelAsync(Level l) => _db.DeleteAsync(l);
+    // ---------- Scores ----------
+    public Task<int> SaveScoreAsync(PlayerScore score) => _db.InsertAsync(score);
 
-    // ---- Scores (пригодится позже)
-    public Task<List<Score>> GetScoresAsync() => _db.Table<Score>().OrderByDescending(s => s.Moves).ToListAsync();
-    public Task<int> AddScoreAsync(Score s) => _db.InsertAsync(s);
+    public Task<List<PlayerScore>> GetTopScoresAsync(int levelIndex, int take = 20) =>
+        _db.Table<PlayerScore>()
+           .Where(s => s.LevelIndex == levelIndex)
+           .OrderBy(s => s.TimeMs)
+           .ThenBy(s => s.Moves)
+           .Take(take)
+           .ToListAsync();
 
-    // ---- Утиль
-    public async Task EnsureSampleLevelAsync()
+    // ---------- Levels (для LevelEditorPage и списка уровней) ----------
+    public Task<List<Level>> GetLevelsAsync() =>
+        _db.Table<Level>().OrderBy(l => l.Id).ToListAsync();
+
+    public Task<Level?> GetLevelAsync(int id) =>
+        _db.Table<Level>().Where(l => l.Id == id).FirstOrDefaultAsync();
+
+    public async Task<int> AddLevelAsync(Level level)
     {
-        if ((await _db.Table<Level>().CountAsync()) == 0)
-        {
-            var sample = LevelLayouts.SampleLevel();
-            await _db.InsertAsync(sample);
-        }
+        if (string.IsNullOrWhiteSpace(level.Name)) level.Name = "Новый уровень";
+        return await _db.InsertAsync(level);
+    }
+
+    public Task<int> UpdateLevelAsync(Level level) => _db.UpdateAsync(level);
+
+    public async Task<int> DeleteLevelAsync(int id)
+    {
+        var lvl = await GetLevelAsync(id);
+        return lvl is null ? 0 : await _db.DeleteAsync(lvl);
     }
 }

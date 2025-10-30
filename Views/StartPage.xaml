@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ColorTubes.Views.StartPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    Title="ColorTubes">
+
+    <Grid>
+        <Image Source="fon_menu.jpg" Aspect="AspectFill"/>
+        <BoxView Color="#66000000"/>
+
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="30">
+            <Label Text="ColorTubes"
+             FontFamily="{StaticResource TitleFont}"
+             FontSize="56"
+             TextColor="White"
+             FontAttributes="Bold"
+             HorizontalTextAlignment="Center" />
+
+            <VerticalStackLayout Spacing="16">
+                <Button Text="Новая игра"
+                Padding="30,16"
+                FontSize="20"
+                CornerRadius="18"
+                BackgroundColor="#7B3DFF"
+                TextColor="White"
+                Clicked="Play_Clicked"/>
+
+                <Button Text="Настройки"
+                Padding="30,16"
+                FontSize="20"
+                CornerRadius="18"
+                BackgroundColor="#444"
+                TextColor="White"
+                Clicked="Settings_Clicked"/>
+            </VerticalStackLayout>
+
+            <!-- имя игрока -->
+            <Label x:Name="LblName"
+             FontSize="14"
+             TextColor="#DDFFFFFF"
+             HorizontalTextAlignment="Center"
+             Margin="0,30,0,0"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

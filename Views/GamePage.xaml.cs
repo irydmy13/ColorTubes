@@ -20,11 +20,11 @@ public partial class GamePage : ContentPage
         base.OnAppearing();
         var vm = (GameViewModel)BindingContext;
 
-        // Имя игрока
+        // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         string? name = Preferences.Get("LastPlayerName", null);
         if (string.IsNullOrWhiteSpace(name))
         {
-            name = await DisplayPromptAsync("Игрок", "Введите ваше имя:", "OK", "Отмена", null, 20);
+            name = await DisplayPromptAsync("пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ:", "OK", "пїЅпїЅпїЅпїЅпїЅпїЅ", null, 20);
             if (string.IsNullOrWhiteSpace(name)) name = "Player";
             Preferences.Set("LastPlayerName", name);
         }

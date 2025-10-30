@@ -7,6 +7,6 @@ public partial class LevelsPage : ContentPage
     public LevelsPage(LevelsViewModel vm)
     {
         InitializeComponent();
-        BindingContext = vm; // DI: VM приходит из MauiProgram
+        BindingContext = vm; // DI: VM пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ MauiProgram
     }
 }

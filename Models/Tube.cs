@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 
 namespace ColorTubes.Models;
 
-// Пробирка. Сегменты храним СНИЗУ ВВЕРХ (последний – верхний слой)
 public class Tube : INotifyPropertyChanged
 {
     public const int Capacity = 4;
@@ -45,7 +44,6 @@ public class Tube : INotifyPropertyChanged
 
     void OnSegmentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        // подписываемся/отписываемся от изменений Amount внутри сегментов
         if (e.OldItems != null)
             foreach (LiquidSegment s in e.OldItems) s.PropertyChanged -= OnSegmentChanged;
         if (e.NewItems != null)

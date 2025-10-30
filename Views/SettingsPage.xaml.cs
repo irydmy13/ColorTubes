@@ -9,11 +9,11 @@ public partial class SettingsPage : ContentPage
     public SettingsPage()
     {
         InitializeComponent();
-        // ВМ получаем через ServiceHelper — как у тебя и было
+        // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ ServiceHelper пїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
         BindingContext = ServiceHelper.GetService<SettingsViewModel>();
     }
 
-    // ----- ЯЗЫК -----
+    // ----- пїЅпїЅпїЅпїЅ -----
     private void LangRu_Clicked(object? sender, EventArgs e)
     {
         var vm = (SettingsViewModel)BindingContext;
@@ -35,7 +35,7 @@ public partial class SettingsPage : ContentPage
         vm.SaveCommand.Execute(null);
     }
 
-    // ----- ТЕМА -----
+    // ----- пїЅпїЅпїЅпїЅ -----
     private void ThemeSystem_Clicked(object? sender, EventArgs e)
     {
         var vm = (SettingsViewModel)BindingContext;

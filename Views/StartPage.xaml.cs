@@ -27,6 +27,9 @@ public partial class StartPage : ContentPage
         await Shell.Current.GoToAsync("game?tubeCount=3&levelIndex=1");
     }
 
-    private Task Settings_Clicked(object sender, EventArgs e)
-        => Shell.Current.GoToAsync("settings");
+    // ВАЖНО: именно async void и именно такое имя
+    private async void Settings_Clicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("settings");
+    }
 }

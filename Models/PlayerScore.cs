@@ -15,6 +15,6 @@ public class PlayerScore
     public string PlayerName { get; set; } = "Player";
 
     public int Moves { get; set; }
-    public long TimeMs { get; set; }      // длительность в мс
+    public long TimeMs { get; set; }  
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

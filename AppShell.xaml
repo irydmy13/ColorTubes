@@ -1,13 +1,28 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Shell
     x:Class="ColorTubes.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:ColorTubes.Views">
+    xmlns:views="clr-namespace:ColorTubes.Views"
+    Shell.FlyoutBehavior="Disabled">
 
-    <TabBar>
-        <ShellContent Title="Game"   ContentTemplate="{DataTemplate views:GamePage}" />
-        <ShellContent Title="Levels" ContentTemplate="{DataTemplate views:LevelsPage}" />
-        <ShellContent Title="Settings" ContentTemplate="{DataTemplate views:SettingsPage}" />
+    <ShellContent
+        Route="start"
+        ContentTemplate="{DataTemplate views:StartPage}" />
+
+        <TabBar Route="main">
+        <ShellContent
+            Title="Game"
+            Route="gameTab"
+            ContentTemplate="{DataTemplate views:GamePage}" />
+        <ShellContent
+            Title="Levels"
+            Route="levels"
+            ContentTemplate="{DataTemplate views:LevelsPage}" />
+        <ShellContent
+            Title="Settings"
+            Route="settings"
+            ContentTemplate="{DataTemplate views:SettingsPage}" />
     </TabBar>
+
 </Shell>

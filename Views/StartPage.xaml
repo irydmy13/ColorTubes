@@ -22,16 +22,16 @@
                 Padding="30,16"
                 FontSize="20"
                 CornerRadius="18"
-                BackgroundColor="#7B3DFF"
-                TextColor="White"
+                BackgroundColor="HotPink"
+                TextColor="Black"
                 Clicked="Play_Clicked"/>
 
                 <Button Text="Настройки"
                 Padding="30,16"
                 FontSize="20"
                 CornerRadius="18"
-                BackgroundColor="#444"
-                TextColor="White"
+                BackgroundColor="Black"
+                TextColor="HotPink"
                 Clicked="Settings_Clicked"/>
             </VerticalStackLayout>
 

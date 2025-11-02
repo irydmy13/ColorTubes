@@ -9,11 +9,11 @@ public partial class SettingsPage : ContentPage
     public SettingsPage()
     {
         InitializeComponent();
-        // �� �������� ����� ServiceHelper � ��� � ���� � ����
+        
         BindingContext = ServiceHelper.GetService<SettingsViewModel>();
     }
 
-    // ----- ���� -----
+
     private void LangRu_Clicked(object? sender, EventArgs e)
     {
         var vm = (SettingsViewModel)BindingContext;
@@ -35,7 +35,6 @@ public partial class SettingsPage : ContentPage
         vm.SaveCommand.Execute(null);
     }
 
-    // ----- ���� -----
     private void ThemeSystem_Clicked(object? sender, EventArgs e)
     {
         var vm = (SettingsViewModel)BindingContext;

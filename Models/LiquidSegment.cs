@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace ColorTubes.Models;
 
-/// <summary>ќдин цветной сегмент жидкости (Amount Ц высота сло€ 1..4).</summary>
 public class LiquidSegment : INotifyPropertyChanged
 {
     string _colorHex = "#FF0000";

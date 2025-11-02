@@ -3,7 +3,6 @@ using Microsoft.Maui.Controls;
 
 namespace ColorTubes.Services;
 
-// Управление темой приложения с сохранением в Preferences.
 public enum AppThemeOption { System = 0, Light = 1, Dark = 2 }
 
 public sealed class ThemeService
@@ -16,14 +15,12 @@ public sealed class ThemeService
         private set => Preferences.Set(Key, (int)value);
     }
 
-    // Применить сохранённую тему при старте приложения
-    public void ApplySavedTheme()
+ public void ApplySavedTheme()
     {
         ApplyTheme(CurrentOption);
     }
 
-    // Установить и сохранить тему
-    public void SetTheme(AppThemeOption option)
+   public void SetTheme(AppThemeOption option)
     {
         CurrentOption = option;
         ApplyTheme(option);

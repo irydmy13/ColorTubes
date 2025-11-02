@@ -3,13 +3,11 @@ using System.Resources;
 
 namespace ColorTubes.Services;
 
-// Простая локализация через .resx. Меняет культуру на лету
 public sealed class LocalizationService
 {
     public CultureInfo CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture;
 
-    // если используешь AppResources.resx
-    private readonly ResourceManager _rm = Resources.Localization.AppResources.ResourceManager;
+   private readonly ResourceManager _rm = Resources.Localization.AppResources.ResourceManager;
 
     public void SetCulture(string langCode)
     {
@@ -19,7 +17,6 @@ public sealed class LocalizationService
         CultureInfo.CurrentCulture = ci;
         CurrentCulture = ci;
 
-        // для статических ресурсов, если нужно:
         Resources.Localization.AppResources.Culture = ci;
     }
 

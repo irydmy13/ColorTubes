@@ -20,7 +20,6 @@ public class DatabaseService
         await _db.CreateTableAsync<PlayerScore>();
         await _db.CreateTableAsync<Level>();
 
-        // если нет ни одного уровня — создадим 5 заглушек
         var count = await _db.Table<Level>().CountAsync();
         if (count == 0)
         {
@@ -28,14 +27,13 @@ public class DatabaseService
             {
                 await _db.InsertAsync(new Level
                 {
-                    Name = $"Уровень {i}",
-                    LayoutJson = "[]" // пусто; редактор уровня может заполнить
+                    Name = $"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ {i}",
+                    LayoutJson = "[]" // пїЅпїЅпїЅпїЅпїЅ; пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 });
             }
         }
     }
 
-    // ---------- Scores ----------
     public Task<int> SaveScoreAsync(PlayerScore score) => _db.InsertAsync(score);
 
     public Task<List<PlayerScore>> GetTopScoresAsync(int levelIndex, int take = 20) =>
@@ -46,7 +44,6 @@ public class DatabaseService
            .Take(take)
            .ToListAsync();
 
-    // ---------- Levels (для LevelEditorPage и списка уровней) ----------
     public Task<List<Level>> GetLevelsAsync() =>
         _db.Table<Level>().OrderBy(l => l.Id).ToListAsync();
 
@@ -55,7 +52,7 @@ public class DatabaseService
 
     public async Task<int> AddLevelAsync(Level level)
     {
-        if (string.IsNullOrWhiteSpace(level.Name)) level.Name = "Новый уровень";
+        if (string.IsNullOrWhiteSpace(level.Name)) level.Name = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
         return await _db.InsertAsync(level);
     }
 

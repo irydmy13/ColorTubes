@@ -8,7 +8,7 @@ public sealed class SettingsService
     const string KeyTheme = "Settings.Theme";
     const string KeySound = "Settings.Sound";
 
-    public string Language => Preferences.Get(KeyLang, "ru"); // по умолчанию русский
+    public string Language => Preferences.Get(KeyLang, "ru");
     public AppThemeOption Theme => (AppThemeOption)Preferences.Get(KeyTheme, (int)AppThemeOption.System);
     public bool SoundOn => Preferences.Get(KeySound, true);
 

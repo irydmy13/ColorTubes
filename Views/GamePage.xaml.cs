@@ -18,17 +18,7 @@ public partial class GamePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        var vm = (GameViewModel)BindingContext;
-
-        // ��� ������
-        string? name = Preferences.Get("LastPlayerName", null);
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            name = await DisplayPromptAsync("�����", "������� ���� ���:", "OK", "������", null, 20);
-            if (string.IsNullOrWhiteSpace(name)) name = "Player";
-            Preferences.Set("LastPlayerName", name);
-        }
-
-        await vm.StartNewGameAsync(TubeCount, LevelIndex, name!);
+        if (BindingContext is GameViewModel vm)
+            await vm.EnsureStartedAsync();
     }
 }

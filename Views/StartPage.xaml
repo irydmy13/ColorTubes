@@ -26,6 +26,14 @@
                 TextColor="Black"
                 Clicked="Play_Clicked"/>
 
+                <Button Text="Рейтинг"
+                Padding="30,16"
+                FontSize="20"
+                CornerRadius="18"
+                BackgroundColor="HotPink"
+                TextColor="Black"
+                Clicked="OnRatingClicked" />
+
                 <Button Text="Настройки"
                 Padding="30,16"
                 FontSize="20"

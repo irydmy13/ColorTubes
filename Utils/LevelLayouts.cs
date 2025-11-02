@@ -2,7 +2,7 @@
 using System.Text.Json;
 using ColorTubes.Models;
 
-namespace ColorTubes;
+namespace ColorTubes.Utils;
 
 public static class LevelLayouts
 {
@@ -24,7 +24,6 @@ public static class LevelLayouts
         return list;
     }
 
-    // ПАЛИТРА «как на картинке»
     private const string PINK = "#FF9EC4"; // розовый
     private const string RED = "#D65A5A"; // красный
     private const string YEL = "#FFD166"; // жёлтый

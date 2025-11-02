@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ColorTubes.Views.RatingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ColorTubes.ViewModels"
+    Title="Rating">
+    <ContentPage.BindingContext>
+        <vm:RatingViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid Padding="16" RowDefinitions="Auto,*,Auto">
+        <Label Text="Таблица рекордов" FontSize="24" FontAttributes="Bold" />
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Scores}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="8" ColumnDefinitions="40,*,80,80">
+                        <Label Text="{Binding Rank}" FontAttributes="Bold" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="{Binding PlayerName}" FontSize="16" />
+                            <Label Text="{Binding LevelName}" FontSize="12" Opacity="0.7" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding Moves}" HorizontalTextAlignment="End"/>
+                        <Label Grid.Column="3" Text="{Binding TimeDisplay}" HorizontalTextAlignment="End"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="2" Text="Обновить" Command="{Binding RefreshCommand}" />
+    </Grid>
+</ContentPage>

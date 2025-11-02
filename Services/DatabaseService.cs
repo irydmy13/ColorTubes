@@ -36,14 +36,6 @@ public class DatabaseService
 
     public Task<int> SaveScoreAsync(PlayerScore score) => _db.InsertAsync(score);
 
-    public Task<List<PlayerScore>> GetTopScoresAsync(int levelIndex, int take = 20) =>
-        _db.Table<PlayerScore>()
-           .Where(s => s.LevelIndex == levelIndex)
-           .OrderBy(s => s.TimeMs)
-           .ThenBy(s => s.Moves)
-           .Take(take)
-           .ToListAsync();
-
     public Task<List<Level>> GetLevelsAsync() =>
         _db.Table<Level>().OrderBy(l => l.Id).ToListAsync();
 
@@ -63,4 +55,15 @@ public class DatabaseService
         var lvl = await GetLevelAsync(id);
         return lvl is null ? 0 : await _db.DeleteAsync(lvl);
     }
+    public async Task<List<PlayerScore>> GetTopScoresAsync(int limit = 10)
+    {
+        var scores = await _db.Table<PlayerScore>()
+            .OrderBy(s => s.Moves)
+            .ThenBy(s => s.PlayTime)
+            .Take(limit)
+            .ToListAsync();
+
+        return scores;
+    }
+
 }

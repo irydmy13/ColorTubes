@@ -13,7 +13,7 @@ public class PlayerScore
 
     [MaxLength(40)]
     public string PlayerName { get; set; } = "Player";
-
+    public double PlayTime { get; set; }
     public int Moves { get; set; }
     public long TimeMs { get; set; }  
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

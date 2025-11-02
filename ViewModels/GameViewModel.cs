@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
+using ColorTubes.Utils;
 using ColorTubes.Models;
 using ColorTubes.Services;
+using Microsoft.Maui.Controls;
 
 namespace ColorTubes.ViewModels;
 
@@ -66,7 +69,8 @@ public class GameViewModel : BaseViewModel
     private void ResetLevel()
     {
         if (_history.Count == 0) return;
-        var first = _history.First();
+        var first = _history.First(); 
+        var tubes = LevelLayouts.SampleLevel();
         LoadFromJson(first);
         Moves = 0;
         _timer.Restart();
@@ -123,7 +127,6 @@ public class GameViewModel : BaseViewModel
         var color = from.TopColor!;
         if (!to.IsEmpty && to.TopColor != color) return false;
 
-        // сколько одинакового цвета сверху у from
         int movable = 0;
         for (int i = from.Segments.Count - 1; i >= 0; i--)
         {
@@ -180,7 +183,31 @@ public class GameViewModel : BaseViewModel
         }
         return true;
     }
+    public async Task StartDefaultLevelAsync()
+    {
+        // 1) Берём демо-уровень (тип: Level)
+        var level = LevelLayouts.SampleLevel();
 
+        // 2) Парсим JSON в список пробирок (тип: List<Tube>)
+        List<Tube> tubes = LevelLayouts.FromJson(level.LayoutJson);
+
+        // 3) Подставляем в игру
+        Tubes.Clear();
+        foreach (var t in tubes)
+            Tubes.Add(t);
+
+        Moves = 0;
+        await Task.CompletedTask;
+    }
+
+
+
+    // В месте инициализации (например, в OnAppearing GamePage или Init команды):
+    public async Task EnsureStartedAsync()
+    {
+        if (Tubes == null || Tubes.Count == 0)
+            await StartDefaultLevelAsync();
+    }
     private async Task OnWinAsync()
     {
         _timer.Stop();

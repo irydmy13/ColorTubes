@@ -16,9 +16,9 @@
             Route="gameTab"
             ContentTemplate="{DataTemplate views:GamePage}" />
         <ShellContent
-            Title="Levels"
-            Route="levels"
-            ContentTemplate="{DataTemplate views:LevelsPage}" />
+            Title="Rating"
+            Route="rating"
+            ContentTemplate="{DataTemplate views:RatingPage}" />
         <ShellContent
             Title="Settings"
             Route="settings"

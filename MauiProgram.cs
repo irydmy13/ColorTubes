@@ -23,12 +23,12 @@ public static class MauiProgram
 
         // ViewModels
         builder.Services.AddSingleton<ViewModels.SettingsViewModel>();
-        builder.Services.AddSingleton<ViewModels.LevelsViewModel>();
+        builder.Services.AddTransient<ViewModels.RatingViewModel>();
         builder.Services.AddTransient<ViewModels.GameViewModel>();
 
         // Pages
         builder.Services.AddSingleton<Views.SettingsPage>();
-        builder.Services.AddSingleton<Views.LevelsPage>();
+        builder.Services.AddTransient<Views.RatingPage>();
         builder.Services.AddTransient<Views.GamePage>();
 
         var app = builder.Build();

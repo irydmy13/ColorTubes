@@ -14,7 +14,10 @@ public partial class StartPage : ContentPage
     {
         await Shell.Current.GoToAsync("///main/levels");
     }
-
+    private async void OnRatingClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///main/rating");
+    }
     private async void Settings_Clicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///main/settings");

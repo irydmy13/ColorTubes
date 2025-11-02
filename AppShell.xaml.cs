@@ -9,7 +9,7 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         Routing.RegisterRoute("game", typeof(GamePage));
-        Routing.RegisterRoute("levels", typeof(LevelsPage));
+        Routing.RegisterRoute("rating", typeof(RatingPage));
         Routing.RegisterRoute("settings", typeof(SettingsPage));
     }
 }

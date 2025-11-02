@@ -2,7 +2,7 @@ using Microsoft.Maui.Storage;
 
 namespace ColorTubes.Services;
 
-public sealed class SettingsService
+public class SettingsService
 {
     const string KeyLang = "Settings.Language";
     const string KeyTheme = "Settings.Theme";
@@ -15,4 +15,9 @@ public sealed class SettingsService
     public void SaveLanguage(string lang) => Preferences.Set(KeyLang, string.IsNullOrWhiteSpace(lang) ? "ru" : lang);
     public void SaveTheme(AppThemeOption theme) => Preferences.Set(KeyTheme, (int)theme);
     public void SaveSound(bool on) => Preferences.Set(KeySound, on);
+    public string PlayerName
+    {
+        get => Preferences.Get(nameof(PlayerName), string.Empty);
+        set => Preferences.Set(nameof(PlayerName), value ?? string.Empty);
+    }
 }

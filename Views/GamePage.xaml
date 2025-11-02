@@ -44,69 +44,43 @@
                     BackgroundColor="#7B3DFF" TextColor="White" Command="{Binding ResetCommand}" />
         </Grid>
 
-        <!-- Поле: 3 колонки, перенос вниз -->
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Tubes}" SelectionMode="None">
+        <!-- Поле с пробирками -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Tubes}">
             <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="3" />
+                <!-- 5 колонок; масштаб пробирок задаём через VM: TubeScale -->
+                <GridItemsLayout Orientation="Vertical" Span="5"/>
             </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <!-- ОДНА ПРОБИРКА -->
-                    <Grid WidthRequest="86" HeightRequest="260" Margin="10,16">
-                        <!-- жест на всю колбу -->
+                    <!-- ОДНА пробирка -->
+                    <Grid Scale="{Binding TubeScale, Source={x:Reference GamePageRoot}}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer
-                                Command="{Binding BindingContext.SelectTubeCommand, Source={x:Reference GamePageRoot}}"
-                                CommandParameter="{Binding .}" />
+        Command="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.SelectTubeCommand}"
+        CommandParameter="{Binding .}" />
                         </Grid.GestureRecognizers>
 
-                        <!-- Горлышко -->
-                        <Grid HeightRequest="14" VerticalOptions="Start" Margin="10,8,10,0" InputTransparent="True">
-                            <shapes:Ellipse StrokeThickness="2"
-                                            Stroke="{Binding Segments.Count, Converter={StaticResource StrokeColor}}"
-                                            Fill="#00000000"
-                                            InputTransparent="True" />
-                        </Grid>
-
-                        <!-- Тело колбы: скругляем ТОЛЬКО снизу -->
-                        <Border Margin="8,16,8,6" InputTransparent="True"
-                                Stroke="{Binding Segments.Count, Converter={StaticResource StrokeColor}}"
-                                StrokeThickness="2">
+                        <!-- Контур пробирки + слои. Если у тебя уже есть разметка — оставь её, это каркас -->
+                        <Border Padding="6" Stroke="#FFFFFF" StrokeThickness="2" BackgroundColor="#1AFFFFFF">
                             <Border.StrokeShape>
-                                <shapes:RoundRectangle CornerRadius="0,0,22,22" />
+                                <shapes:RoundRectangle CornerRadius="18"/>
                             </Border.StrokeShape>
 
-                            <!-- Внутренность -->
-                            <Grid Padding="8" InputTransparent="True">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="28" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <!-- Слои снизу вверх -->
-                                <Grid Grid.Row="1" VerticalOptions="End" InputTransparent="True">
-                                    <Grid BindableLayout.ItemsSource="{Binding Segments}">
-                                        <BindableLayout.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Style="{StaticResource LayerStyle}"
-                                                        HeightRequest="{Binding Amount, Converter={StaticResource AmountToHeight}, ConverterParameter=52}">
-                                                    <Border.Background>
-                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                            <GradientStop Color="{Binding ColorHex}" Offset="0.00" />
-                                                            <GradientStop Color="{Binding ColorHex}" Offset="0.65" />
-                                                            <GradientStop Color="#55FFFFFF" Offset="0.98" />
-                                                        </LinearGradientBrush>
-                                                    </Border.Background>
-                                                </Border>
-                                            </DataTemplate>
-                                        </BindableLayout.ItemTemplate>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
+                            <VerticalStackLayout VerticalOptions="End"
+                           BindableLayout.ItemsSource="{Binding Segments}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource LayerStyle}"
+                    BackgroundColor="{Binding ColorHex}"
+                    HeightRequest="{Binding Amount, Converter={StaticResource AmountToHeight}}" />
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
                         </Border>
                     </Grid>
                 </DataTemplate>
+
             </CollectionView.ItemTemplate>
         </CollectionView>
     </Grid>

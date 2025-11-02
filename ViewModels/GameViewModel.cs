@@ -1,107 +1,211 @@
-using System.Collections.ObjectModel;
+using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using ColorTubes.Utils;
+using Microsoft.Maui.Controls;
 using ColorTubes.Models;
 using ColorTubes.Services;
-using Microsoft.Maui.Controls;
+using ColorTubes.Utils;
 
 namespace ColorTubes.ViewModels;
 
 public class GameViewModel : BaseViewModel
 {
+    private const int Capacity = 4;
+
     private readonly DatabaseService _db;
 
     public ObservableCollection<Tube> Tubes { get; } = new();
 
+    // --- ходов счетчик ---
     private int _moves;
     public int Moves { get => _moves; private set => Set(ref _moves, value); }
+    private int _selectedIndex = -1;
+    public int SelectedIndex { get => _selectedIndex; set => Set(ref _selectedIndex, value); }
 
+
+    // имя игрока и индекс уровня (для таблицы рекордов/алертов)
     private string _playerName = "Player";
     private int _levelIndex = 1;
 
+    // история состояний для Undo (JSON снимки)
     private readonly Stack<string> _history = new();
-    private readonly Stopwatch _timer = new();
+    private string? _initialSnapshot;
 
+    // таймер
+    private readonly Stopwatch _watch = new();
+    private bool _timerTicking;
+
+    private TimeSpan _elapsed;
+    public TimeSpan Elapsed
+    {
+        get => _elapsed;
+        private set => Set(ref _elapsed, value);
+    }
+
+
+    // выбранная колба
+    private Tube? _selected;
+
+    // кампания: 5 уровней (5..9 колб)
+    public int CurrentLevel { get; private set; } = 1;
+    public int TotalLevels { get; } = 5;
+
+    // масштаб отрисовки колб (уменьшается при росте их числа)
+    private double _tubeScale = 1.0;
+    public double TubeScale
+    {
+        get => _tubeScale;
+        private set => Set(ref _tubeScale, value);
+    }
+
+    // Команды
     public ICommand SelectTubeCommand { get; }
     public ICommand ResetCommand { get; }
     public ICommand UndoCommand { get; }
 
-    private Tube? _selected;
-
     public GameViewModel(DatabaseService db)
     {
         _db = db;
+
         SelectTubeCommand = new Command<Tube>(OnSelectTube);
         ResetCommand = new Command(ResetLevel);
         UndoCommand = new Command(Undo, () => _history.Count > 1);
     }
 
+    // ===== Старт игры (одиночный уровень) =====
     public async Task StartNewGameAsync(int tubeCount, int levelIndex, string playerName)
     {
-        _playerName = playerName;
+        _playerName = string.IsNullOrWhiteSpace(playerName) ? "Player" : playerName.Trim();
         _levelIndex = levelIndex;
 
-        // генерируем новую головоломку
-        Tubes.Clear();
-        foreach (var t in PuzzleGenerator.Generate(tubeCount))
-            Tubes.Add(t);
+        // генерируем раскладку
+        LoadTubes(LevelLayouts.BuildRandomTubes(tubeCount));
 
+        // снимок для Reset
+        _initialSnapshot = LevelLayouts.ToJson(Tubes.ToList());
         _history.Clear();
-        SaveSnapshot();
+        _history.Push(_initialSnapshot);
+        UpdateUndoState();
+
         Moves = 0;
         _selected = null;
 
-        _timer.Reset();
-        _timer.Start();
+        StartTimer();
 
         await Task.CompletedTask;
     }
 
+    // ===== Кампания 5 уровней (5..9 колб) =====
+    public async Task StartCampaignAsync()
+    {
+        CurrentLevel = 1;
+        await StartLevelAsync(CurrentLevel);
+    }
+
+    public async Task StartLevelAsync(int level)
+    {
+        _levelIndex = level;
+        int tubesCount = 5 + (level - 1); // 5..9
+
+        LoadTubes(LevelLayouts.BuildRandomTubes(tubesCount));
+
+        _initialSnapshot = LevelLayouts.ToJson(Tubes.ToList());
+        _history.Clear();
+        _history.Push(_initialSnapshot);
+        UpdateUndoState();
+
+        Moves = 0;
+        _selected = null;
+
+        // масштаб
+        TubeScale = tubesCount <= 6 ? 1.0 : tubesCount <= 8 ? 0.9 : 0.8;
+
+        StartTimer();
+        await Task.CompletedTask;
+    }
+
+    // ===== Таймер =====
+    private void StartTimer()
+    {
+        _watch.Reset();
+        _watch.Start();
+        if (_timerTicking) return;
+
+        _timerTicking = true;
+        Device.StartTimer(TimeSpan.FromMilliseconds(200), () =>
+        {
+            Elapsed = _watch.Elapsed;
+            return _timerTicking;
+        });
+    }
+
+    private void StopTimer()
+    {
+        _watch.Stop();
+        _timerTicking = false;
+        Elapsed = _watch.Elapsed;
+    }
+
+    // ===== Undo / Reset / Snapshot =====
     private void SaveSnapshot()
     {
-        var list = Tubes.Select(t => t.Clone()).ToList();
-        _history.Push(LevelLayouts.ToJson(list));
+        _history.Push(LevelLayouts.ToJson(Tubes.ToList()));
+        UpdateUndoState();
+    }
+
+    private void UpdateUndoState()
+    {
         (UndoCommand as Command)?.ChangeCanExecute();
     }
 
     private void ResetLevel()
     {
-        if (_history.Count == 0) return;
-        var first = _history.First(); 
-        var tubes = LevelLayouts.SampleLevel();
-        LoadFromJson(first);
+        if (string.IsNullOrEmpty(_initialSnapshot)) return;
+        LoadFromJson(_initialSnapshot);
+        _history.Clear();
+        _history.Push(_initialSnapshot);
+        UpdateUndoState();
+
         Moves = 0;
-        _timer.Restart();
+        _selected = null;
+
+        _watch.Restart();
     }
 
     private void Undo()
     {
         if (_history.Count <= 1) return;
         _history.Pop();
-        var json = _history.Peek();
-        LoadFromJson(json);
-        (UndoCommand as Command)?.ChangeCanExecute();
+        LoadFromJson(_history.Peek());
+        _selected = null;
+        UpdateUndoState();
     }
 
     private void LoadFromJson(string json)
     {
-        Tubes.Clear();
-        foreach (var t in LevelLayouts.FromJson(json))
-            Tubes.Add(t);
-        _selected = null;
+        LoadTubes(LevelLayouts.FromJson(json));
     }
 
+    private void LoadTubes(List<Tube> tubes)
+    {
+        Tubes.Clear();
+        foreach (var t in tubes) Tubes.Add(t);
+    }
+
+    // ===== Выбор/перелив =====
     private void OnSelectTube(Tube tube)
     {
         if (_selected is null)
         {
-            if (!tube.IsEmpty) _selected = tube;
+            if (!IsEmpty(tube)) _selected = tube;
             return;
         }
 
-        if (_selected == tube)
+        if (ReferenceEquals(_selected, tube))
         {
             _selected = null;
             return;
@@ -111,44 +215,47 @@ public class GameViewModel : BaseViewModel
         {
             Moves++;
             _selected = null;
+
             if (IsSolved())
                 _ = OnWinAsync();
         }
         else
         {
-            _selected = tube.IsEmpty ? null : tube;
+            _selected = IsEmpty(tube) ? null : tube;
         }
     }
 
     private bool TryPour(Tube from, Tube to)
     {
-        if (from.IsEmpty || to.IsFull || from == to) return false;
+        if (IsEmpty(from) || IsFull(to) || ReferenceEquals(from, to)) return false;
 
-        var color = from.TopColor!;
-        if (!to.IsEmpty && to.TopColor != color) return false;
+        var color = TopColor(from);
+        if (color is null) return false;
 
-        int movable = 0;
-        for (int i = from.Segments.Count - 1; i >= 0; i--)
-        {
-            if (from.Segments[i].ColorHex == color) movable += from.Segments[i].Amount;
-            else break;
-        }
+        var toTop = TopColor(to);
+        if (toTop is not null && toTop != color) return false;
 
-        int canMove = Math.Min(movable, to.FreeAmount);
-        if (canMove == 0) return false;
+        int movable = CountMovableTop(from, color);
+        int free = FreeAmount(to);
+        int move = Math.Min(movable, free);
+        if (move <= 0) return false;
 
         SaveSnapshot();
 
-        int remain = canMove;
+        // перенос послойно
+        int remain = move;
         while (remain > 0)
         {
             var top = from.Segments[^1];
             int step = Math.Min(top.Amount, remain);
             top.Amount -= step;
-            if (top.Amount == 0) from.Segments.RemoveAt(from.Segments.Count - 1);
+            if (top.Amount == 0)
+                from.Segments.RemoveAt(from.Segments.Count - 1);
 
-            if (!to.IsEmpty && to.TopColor == color)
-                to.Segments[^1].Amount += step;
+            // слить с верхом у получателя, если тот же цвет
+            var toTopSeg = to.Segments.Count > 0 ? to.Segments[^1] : null;
+            if (toTopSeg is not null && toTopSeg.ColorHex == color)
+                toTopSeg.Amount += step;
             else
                 to.Segments.Add(new LiquidSegment { ColorHex = color, Amount = step });
 
@@ -172,59 +279,85 @@ public class GameViewModel : BaseViewModel
         }
     }
 
+    // ===== Проверка победы =====
     private bool IsSolved()
     {
         foreach (var t in Tubes)
         {
-            if (t.IsEmpty) continue;
-            if (t.FilledAmount != Tube.Capacity) return false;
-            var color = t.Segments[0].ColorHex;
-            if (t.Segments.Any(s => s.ColorHex != color)) return false;
+            if (IsEmpty(t)) continue;
+            if (FilledAmount(t) != Capacity) return false;
+            var first = t.Segments[0].ColorHex;
+            if (t.Segments.Any(s => s.ColorHex != first)) return false;
         }
         return true;
     }
+
+    private async Task OnWinAsync()
+    {
+        StopTimer();
+
+        // сохраняем результат (модель PlayerScore: PlayerName, Moves, PlayTime)
+        await _db.SaveScoreAsync(new PlayerScore
+        {
+            PlayerName = _playerName,
+            Moves = Moves,
+            PlayTime = _watch.Elapsed.TotalSeconds
+        });
+
+        string timeStr = Elapsed.ToString(Elapsed.Hours > 0 ? @"h\:mm\:ss" : @"m\:ss");
+        await Application.Current.MainPage.DisplayAlert(
+            "Победа!",
+            $"Уровень {_levelIndex} пройден\nИмя: {_playerName}\nХоды: {Moves}\nВремя: {timeStr}",
+            "OK");
+
+        // автопереход по кампании
+        if (CurrentLevel < TotalLevels)
+        {
+            CurrentLevel++;
+            await StartLevelAsync(CurrentLevel);
+        }
+    }
+
+    // ===== хелперы по колбе =====
+    private static int FilledAmount(Tube t) => t.Segments.Sum(s => s.Amount);
+    private static int FreeAmount(Tube t) => Math.Max(0, Capacity - FilledAmount(t));
+    private static bool IsEmpty(Tube t) => t.Segments.Count == 0;
+    private static bool IsFull(Tube t) => FilledAmount(t) >= Capacity;
+    private static string? TopColor(Tube t) => IsEmpty(t) ? null : t.Segments[^1].ColorHex;
+
+    private static int CountMovableTop(Tube t, string color)
+    {
+        int cnt = 0;
+        for (int i = t.Segments.Count - 1; i >= 0; i--)
+        {
+            var seg = t.Segments[i];
+            if (seg.ColorHex != color) break;
+            cnt += seg.Amount;
+        }
+        return cnt;
+    }
+
+    // ===== Демо-уровень (если нужно) =====
     public async Task StartDefaultLevelAsync()
     {
-        // 1) Берём демо-уровень (тип: Level)
         var level = LevelLayouts.SampleLevel();
+        LoadTubes(LevelLayouts.FromJson(level.LayoutJson));
 
-        // 2) Парсим JSON в список пробирок (тип: List<Tube>)
-        List<Tube> tubes = LevelLayouts.FromJson(level.LayoutJson);
-
-        // 3) Подставляем в игру
-        Tubes.Clear();
-        foreach (var t in tubes)
-            Tubes.Add(t);
+        _initialSnapshot = LevelLayouts.ToJson(Tubes.ToList());
+        _history.Clear();
+        _history.Push(_initialSnapshot);
+        UpdateUndoState();
 
         Moves = 0;
+        _selected = null;
+
+        StartTimer();
         await Task.CompletedTask;
     }
 
-
-
-    // В месте инициализации (например, в OnAppearing GamePage или Init команды):
     public async Task EnsureStartedAsync()
     {
-        if (Tubes == null || Tubes.Count == 0)
+        if (Tubes.Count == 0)
             await StartDefaultLevelAsync();
-    }
-    private async Task OnWinAsync()
-    {
-        _timer.Stop();
-
-        var score = new PlayerScore
-        {
-            PlayerName = _playerName,
-            LevelIndex = _levelIndex,
-            Moves = Moves,
-            TimeMs = _timer.ElapsedMilliseconds
-        };
-        await _db.SaveScoreAsync(score);
-
-        string timeStr = TimeSpan.FromMilliseconds(score.TimeMs).ToString(@"m\:ss\.fff");
-        await Shell.Current.DisplayAlert("Победа!",
-            $"Уровень {_levelIndex} пройден.\n" +
-            $"Имя: {_playerName}\nХоды: {Moves}\nВремя: {timeStr}",
-            "OK");
     }
 }

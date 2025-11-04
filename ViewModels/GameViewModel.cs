@@ -20,22 +20,22 @@ public class GameViewModel : BaseViewModel
 
     public ObservableCollection<Tube> Tubes { get; } = new();
 
-    // --- ходов счетчик ---
+    // --- С…РѕРґРѕРІ СЃС‡РµС‚С‡РёРє ---
     private int _moves;
     public int Moves { get => _moves; private set => Set(ref _moves, value); }
     private int _selectedIndex = -1;
     public int SelectedIndex { get => _selectedIndex; set => Set(ref _selectedIndex, value); }
 
 
-    // имя игрока и индекс уровня (для таблицы рекордов/алертов)
+    // РёРјСЏ РёРіСЂРѕРєР° Рё РёРЅРґРµРєСЃ СѓСЂРѕРІРЅСЏ (РґР»СЏ С‚Р°Р±Р»РёС†С‹ СЂРµРєРѕСЂРґРѕРІ/Р°Р»РµСЂС‚РѕРІ)
     private string _playerName = "Player";
     private int _levelIndex = 1;
 
-    // история состояний для Undo (JSON снимки)
+    // РёСЃС‚РѕСЂРёСЏ СЃРѕСЃС‚РѕСЏРЅРёР№ РґР»СЏ Undo (JSON СЃРЅРёРјРєРё)
     private readonly Stack<string> _history = new();
     private string? _initialSnapshot;
 
-    // таймер
+    // С‚Р°Р№РјРµСЂ
     private readonly Stopwatch _watch = new();
     private bool _timerTicking;
 
@@ -47,14 +47,14 @@ public class GameViewModel : BaseViewModel
     }
 
 
-    // выбранная колба
+    // РІС‹Р±СЂР°РЅРЅР°СЏ РєРѕР»Р±Р°
     private Tube? _selected;
 
-    // кампания: 5 уровней (5..9 колб)
+    // РєР°РјРїР°РЅРёСЏ: 5 СѓСЂРѕРІРЅРµР№ (5..9 РєРѕР»Р±)
     public int CurrentLevel { get; private set; } = 1;
     public int TotalLevels { get; } = 5;
 
-    // масштаб отрисовки колб (уменьшается при росте их числа)
+    // РјР°СЃС€С‚Р°Р± РѕС‚СЂРёСЃРѕРІРєРё РєРѕР»Р± (СѓРјРµРЅСЊС€Р°РµС‚СЃСЏ РїСЂРё СЂРѕСЃС‚Рµ РёС… С‡РёСЃР»Р°)
     private double _tubeScale = 1.0;
     public double TubeScale
     {
@@ -62,7 +62,7 @@ public class GameViewModel : BaseViewModel
         private set => Set(ref _tubeScale, value);
     }
 
-    // Команды
+    // РљРѕРјР°РЅРґС‹
     public ICommand SelectTubeCommand { get; }
     public ICommand ResetCommand { get; }
     public ICommand UndoCommand { get; }
@@ -76,16 +76,16 @@ public class GameViewModel : BaseViewModel
         UndoCommand = new Command(Undo, () => _history.Count > 1);
     }
 
-    // ===== Старт игры (одиночный уровень) =====
+    // ===== РЎС‚Р°СЂС‚ РёРіСЂС‹ (РѕРґРёРЅРѕС‡РЅС‹Р№ СѓСЂРѕРІРµРЅСЊ) =====
     public async Task StartNewGameAsync(int tubeCount, int levelIndex, string playerName)
     {
         _playerName = string.IsNullOrWhiteSpace(playerName) ? "Player" : playerName.Trim();
         _levelIndex = levelIndex;
 
-        // генерируем раскладку
+        // РіРµРЅРµСЂРёСЂСѓРµРј СЂР°СЃРєР»Р°РґРєСѓ
         LoadTubes(LevelLayouts.BuildRandomTubes(tubeCount));
 
-        // снимок для Reset
+        // СЃРЅРёРјРѕРє РґР»СЏ Reset
         _initialSnapshot = LevelLayouts.ToJson(Tubes.ToList());
         _history.Clear();
         _history.Push(_initialSnapshot);
@@ -99,7 +99,7 @@ public class GameViewModel : BaseViewModel
         await Task.CompletedTask;
     }
 
-    // ===== Кампания 5 уровней (5..9 колб) =====
+    // ===== РљР°РјРїР°РЅРёСЏ 5 СѓСЂРѕРІРЅРµР№ (5..9 РєРѕР»Р±) =====
     public async Task StartCampaignAsync()
     {
         CurrentLevel = 1;
@@ -121,14 +121,14 @@ public class GameViewModel : BaseViewModel
         Moves = 0;
         _selected = null;
 
-        // масштаб
+        // РјР°СЃС€С‚Р°Р±
         TubeScale = tubesCount <= 6 ? 1.0 : tubesCount <= 8 ? 0.9 : 0.8;
 
         StartTimer();
         await Task.CompletedTask;
     }
 
-    // ===== Таймер =====
+    // ===== РўР°Р№РјРµСЂ =====
     private void StartTimer()
     {
         _watch.Reset();
@@ -196,7 +196,7 @@ public class GameViewModel : BaseViewModel
         foreach (var t in tubes) Tubes.Add(t);
     }
 
-    // ===== Выбор/перелив =====
+    // ===== Р’С‹Р±РѕСЂ/РїРµСЂРµР»РёРІ =====
     private void OnSelectTube(Tube tube)
     {
         if (_selected is null)
@@ -242,22 +242,19 @@ public class GameViewModel : BaseViewModel
 
         SaveSnapshot();
 
-        // перенос послойно
         int remain = move;
         while (remain > 0)
         {
-            var top = from.Segments[^1];
+            var top = from.Segments[0];
             int step = Math.Min(top.Amount, remain);
             top.Amount -= step;
             if (top.Amount == 0)
-                from.Segments.RemoveAt(from.Segments.Count - 1);
+                from.Segments.RemoveAt(0);
 
-            // слить с верхом у получателя, если тот же цвет
-            var toTopSeg = to.Segments.Count > 0 ? to.Segments[^1] : null;
-            if (toTopSeg is not null && toTopSeg.ColorHex == color)
-                toTopSeg.Amount += step;
+            if (to.Segments.Count > 0 && to.Segments[0].ColorHex == color)
+                to.Segments[0].Amount += step;          // СЃР»РёРІР°РµРј СЃ РІРµСЂС…РЅРёРј СЃР»РѕРµРј
             else
-                to.Segments.Add(new LiquidSegment { ColorHex = color, Amount = step });
+                to.Segments.Insert(0, new LiquidSegment { ColorHex = color, Amount = step });
 
             remain -= step;
         }
@@ -270,16 +267,16 @@ public class GameViewModel : BaseViewModel
     private static void MergeTop(Tube t)
     {
         if (t.Segments.Count < 2) return;
-        var a = t.Segments[^1];
-        var b = t.Segments[^2];
-        if (a.ColorHex == b.ColorHex)
+        var top = t.Segments[0];
+        var next = t.Segments[1];
+        if (top.ColorHex == next.ColorHex)
         {
-            b.Amount += a.Amount;
-            t.Segments.RemoveAt(t.Segments.Count - 1);
+            next.Amount += top.Amount;
+            t.Segments.RemoveAt(0);
         }
     }
 
-    // ===== Проверка победы =====
+    // ===== РџСЂРѕРІРµСЂРєР° РїРѕР±РµРґС‹ =====
     private bool IsSolved()
     {
         foreach (var t in Tubes)
@@ -296,39 +293,54 @@ public class GameViewModel : BaseViewModel
     {
         StopTimer();
 
-        // сохраняем результат (модель PlayerScore: PlayerName, Moves, PlayTime)
+        // СЃРѕС…СЂР°РЅСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ Р·Р° С‚РµРєСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ
         await _db.SaveScoreAsync(new PlayerScore
         {
             PlayerName = _playerName,
             Moves = Moves,
-            PlayTime = _watch.Elapsed.TotalSeconds
+            PlayTime = _watch.Elapsed.TotalSeconds,
+            LevelIndex = _levelIndex   // РµСЃР»Рё РїРѕР»Рµ РµСЃС‚СЊ РІ РјРѕРґРµР»Рё
         });
 
         string timeStr = Elapsed.ToString(Elapsed.Hours > 0 ? @"h\:mm\:ss" : @"m\:ss");
         await Application.Current.MainPage.DisplayAlert(
-            "Победа!",
-            $"Уровень {_levelIndex} пройден\nИмя: {_playerName}\nХоды: {Moves}\nВремя: {timeStr}",
+            "РЈСЂРѕРІРµРЅСЊ РїСЂРѕР№РґРµРЅ!",
+            $"РЈСЂРѕРІРµРЅСЊ {_levelIndex} Р·Р°РІРµСЂС€С‘РЅ\nРРјСЏ: {_playerName}\nРҐРѕРґС‹: {Moves}\nР’СЂРµРјСЏ: {timeStr}",
             "OK");
 
-        // автопереход по кампании
-        if (CurrentLevel < TotalLevels)
+        // РµСЃР»Рё СЌС‚Рѕ Р±С‹Р» РїРѕСЃР»РµРґРЅРёР№ СѓСЂРѕРІРµРЅСЊ РєР°РјРїР°РЅРёРё вЂ” РїРѕРєР°Р·С‹РІР°РµРј С„РёРЅР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі
+        if (CurrentLevel >= TotalLevels)
         {
-            CurrentLevel++;
-            await StartLevelAsync(CurrentLevel);
+            bool goRating = await Application.Current.MainPage.DisplayAlert(
+                "РџРѕР±РµРґР°! рџЋ‰",
+                $"РўС‹ РїСЂРѕС€С‘Р» РІСЃРµ {TotalLevels} СѓСЂРѕРІРЅРµР№. РњРѕР»РѕРґРµС†!",
+                "РџРµСЂРµР№С‚Рё РІ СЂРµР№С‚РёРЅРіРё",
+                "Р—Р°РєСЂС‹С‚СЊ");
+
+            if (goRating)
+            {
+                // РїРµСЂРµС…РѕРґ РЅР° СЃС‚СЂР°РЅРёС†Сѓ СЂРµР№С‚РёРЅРіР° (РєР°Рє Рё РїСЂРѕСЃРёР»Р°)
+                await Shell.Current.GoToAsync("///main/rating");
+            }
+            return; // РІС‹С…РѕРґРёРј, РЅРµ Р·Р°РїСѓСЃРєР°РµРј СЃР»РµРґСѓСЋС‰РёР№ СѓСЂРѕРІРµРЅСЊ
         }
+
+        // РёРЅР°С‡Рµ вЂ” РїСЂРѕРґРѕР»Р¶Р°РµРј РєР°РјРїР°РЅРёСЋ
+        CurrentLevel++;
+        await StartLevelAsync(CurrentLevel);
     }
 
-    // ===== хелперы по колбе =====
+    // ===== С…РµР»РїРµСЂС‹ РїРѕ РєРѕР»Р±Рµ =====
     private static int FilledAmount(Tube t) => t.Segments.Sum(s => s.Amount);
     private static int FreeAmount(Tube t) => Math.Max(0, Capacity - FilledAmount(t));
     private static bool IsEmpty(Tube t) => t.Segments.Count == 0;
     private static bool IsFull(Tube t) => FilledAmount(t) >= Capacity;
-    private static string? TopColor(Tube t) => IsEmpty(t) ? null : t.Segments[^1].ColorHex;
+    private static string? TopColor(Tube t) => IsEmpty(t) ? null : t.Segments[0].ColorHex;
 
     private static int CountMovableTop(Tube t, string color)
     {
         int cnt = 0;
-        for (int i = t.Segments.Count - 1; i >= 0; i--)
+        for (int i = 0; i < t.Segments.Count; i++)
         {
             var seg = t.Segments[i];
             if (seg.ColorHex != color) break;
@@ -337,7 +349,7 @@ public class GameViewModel : BaseViewModel
         return cnt;
     }
 
-    // ===== Демо-уровень (если нужно) =====
+    // ===== Р”РµРјРѕ-СѓСЂРѕРІРµРЅСЊ (РµСЃР»Рё РЅСѓР¶РЅРѕ) =====
     public async Task StartDefaultLevelAsync()
     {
         var level = LevelLayouts.SampleLevel();

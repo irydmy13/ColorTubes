@@ -8,21 +8,27 @@
 
     <ShellContent
         Route="start"
+        Title="Start"
         ContentTemplate="{DataTemplate views:StartPage}" />
 
-        <TabBar Route="main">
+    <!-- Основной TabBar: Menu / Rating / Settings -->
+    <TabBar Route="main">
+
+        <!-- MENU = StartPage, но уже внутри таббара -->
         <ShellContent
             Title="Game"
-            Route="gameTab"
-            ContentTemplate="{DataTemplate views:GamePage}" />
+            Route="menu"
+            ContentTemplate="{DataTemplate views:StartPage}" />
+
         <ShellContent
             Title="Rating"
             Route="rating"
             ContentTemplate="{DataTemplate views:RatingPage}" />
+
         <ShellContent
             Title="Settings"
             Route="settings"
             ContentTemplate="{DataTemplate views:SettingsPage}" />
-    </TabBar>
 
+    </TabBar>
 </Shell>

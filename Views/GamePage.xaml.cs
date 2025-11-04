@@ -1,31 +1,33 @@
+using System;
+using Microsoft.Maui.Controls;
 using ColorTubes.ViewModels;
 using ColorTubes.Models;
 
 namespace ColorTubes.Views;
+
 public partial class GamePage : ContentPage
 {
-    public GamePage()
+    private readonly GameViewModel _vm;
+
+    public GamePage(GameViewModel vm)
     {
         InitializeComponent();
-    }
-
-private void OnTubeTapped(object sender, TappedEventArgs e)
-    {
-        if (BindingContext is not GameViewModel vm) return;
-        if (sender is not VisualElement ve) return;
-        if (ve.BindingContext is not Tube tube) return;
-
-        if (vm.SelectTubeCommand is Command<Tube> cmd && cmd.CanExecute(tube))
-            cmd.Execute(tube);
+        _vm = vm;
+        BindingContext = _vm;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (BindingContext is GameViewModel vm)
-        {
-            if (vm.Tubes == null || vm.Tubes.Count == 0)
-                await vm.StartCampaignAsync(); // старт кампании 5 уровней
-        }
+        if (_vm.Tubes.Count == 0)
+            await _vm.StartCampaignAsync(); // стартуем уровни (5→9 колб)
+    }
+
+    private void OnTubeTapped(object sender, TappedEventArgs e)
+    {
+        if (sender is not VisualElement ve) return;
+        if (ve.BindingContext is not Tube tube) return;
+        if (_vm.SelectTubeCommand is Command<Tube> cmd && cmd.CanExecute(tube))
+            cmd.Execute(tube);
     }
 }

@@ -13,7 +13,7 @@
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="30">
             <Label Text="ColorTubes"
              FontSize="56"
-             TextColor="White"
+             TextColor="LightGreen"
              FontAttributes="Bold"
              HorizontalTextAlignment="Center" />
 
@@ -22,32 +22,26 @@
                 Padding="30,16"
                 FontSize="20"
                 CornerRadius="18"
-                BackgroundColor="HotPink"
-                TextColor="Black"
+                BackgroundColor="#80000000"
+                TextColor="Yellow"
                 Clicked="Play_Clicked"/>
 
                 <Button Text="Рейтинг"
                 Padding="30,16"
                 FontSize="20"
                 CornerRadius="18"
-                BackgroundColor="HotPink"
-                TextColor="Black"
+                BackgroundColor="#80000000"
+                TextColor="HotPink"
                 Clicked="OnRatingClicked" />
 
                 <Button Text="Настройки"
                 Padding="30,16"
                 FontSize="20"
                 CornerRadius="18"
-                BackgroundColor="Black"
-                TextColor="HotPink"
+                BackgroundColor="#80000000"
+                TextColor="LightBlue"
                 Clicked="Settings_Clicked"/>
             </VerticalStackLayout>
-
-            <Label x:Name="LblName"
-             FontSize="14"
-             TextColor="#DDFFFFFF"
-             HorizontalTextAlignment="Center"
-             Margin="0,30,0,0"/>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

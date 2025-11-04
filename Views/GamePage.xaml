@@ -7,80 +7,110 @@
     xmlns:resources="clr-namespace:ColorTubes.Resources.Localization"
     xmlns:conv="clr-namespace:ColorTubes.Converters"
     xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Title="{x:Static resources:AppResources.Menu_Game}"
     BackgroundImageSource="bg_pattern.png">
 
     <ContentPage.Resources>
+        <!-- конвертеры -->
         <conv:AmountToHeightConverter x:Key="AmountToHeight" />
         <conv:IntToStrokeColorConverter x:Key="StrokeColor" />
 
-        <!-- Стиль одного слоя жидкости -->
-        <Style x:Key="LayerStyle" TargetType="Border">
-            <Setter Property="StrokeThickness" Value="0" />
-            <Setter Property="Margin" Value="0,4,0,0" />
-            <Setter Property="Shadow">
-                <Setter.Value>
-                    <Shadow Brush="#33000000" Radius="4" Opacity="0.35" />
-                </Setter.Value>
-            </Setter>
-            <Setter Property="StrokeShape">
-                <Setter.Value>
-                    <shapes:RoundRectangle CornerRadius="10" />
-                </Setter.Value>
-            </Setter>
+        <!-- параметры кружков -->
+        <x:Double x:Key="DotUnitPx">20</x:Double>
+        <!-- диаметр на 1 unit -->
+        <Thickness x:Key="DotMargin">0,4,0,0</Thickness>
+        <!-- зазор между кружками -->
+
+        <!-- стекло -->
+        <SolidColorBrush x:Key="GlassStroke" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="GlassFill"   Color="#14FFFFFF" />
+
+        <!-- «узкое горлышко» за счёт внутренних отступов -->
+        <Style x:Key="LiquidHostStyle" TargetType="Border">
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="14,30,14,12" />
         </Style>
     </ContentPage.Resources>
 
     <Grid Padding="12" RowDefinitions="Auto,*">
-        <!-- Верхняя панель -->
+        <!-- верхняя панель -->
         <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,2,0,8">
-            <Button Text="⟲" WidthRequest="40" HeightRequest="40"
-                    CornerRadius="20" BackgroundColor="#2D3AFE" TextColor="White"
+            <Button Text="⟲"
+                    WidthRequest="40" HeightRequest="40"
+                    CornerRadius="20"
+                    BackgroundColor="#2D3AFE" TextColor="White"
                     Command="{Binding UndoCommand}" />
-            <Label Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center"
+
+            <Label Grid.Column="1"
+                   HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="18" TextColor="White"
                    Text="{Binding Moves, StringFormat='Ходов: {0}'}" />
-            <Button Grid.Column="2" Text="Сброс" Padding="12,6" CornerRadius="10"
-                    BackgroundColor="#7B3DFF" TextColor="White" Command="{Binding ResetCommand}" />
+
+            <Button Grid.Column="2"
+                    Text="Сброс" Padding="12,6" CornerRadius="10"
+                    BackgroundColor="#7B3DFF" TextColor="White"
+                    Command="{Binding ResetCommand}" />
         </Grid>
 
-        <!-- Поле с пробирками -->
+        <!-- поле с пробирками -->
         <CollectionView Grid.Row="1" ItemsSource="{Binding Tubes}">
             <CollectionView.ItemsLayout>
-                <!-- 5 колонок; масштаб пробирок задаём через VM: TubeScale -->
-                <GridItemsLayout Orientation="Vertical" Span="5"/>
+                <GridItemsLayout Orientation="Vertical" Span="4"
+                                 HorizontalItemSpacing="8" VerticalItemSpacing="12"/>
             </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <!-- ОДНА пробирка -->
-                    <Grid Scale="{Binding TubeScale, Source={x:Reference GamePageRoot}}">
+                    <Grid WidthRequest="60" HeightRequest="180"
+                          Scale="{Binding TubeScale, Source={x:Reference GamePageRoot}}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer
-        Command="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.SelectTubeCommand}"
-        CommandParameter="{Binding .}" />
+                                Command="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.SelectTubeCommand}"
+                                CommandParameter="{Binding .}" />
                         </Grid.GestureRecognizers>
 
-                        <!-- Контур пробирки + слои. Если у тебя уже есть разметка — оставь её, это каркас -->
-                        <Border Padding="6" Stroke="#FFFFFF" StrokeThickness="2" BackgroundColor="#1AFFFFFF">
+                        <!-- 1) Внутренняя зона, ОТРЕЗКА по форме через Border.StrokeShape -->
+                        <Border Style="{StaticResource LiquidHostStyle}"
+                                BackgroundColor="Transparent" StrokeThickness="0">
                             <Border.StrokeShape>
-                                <shapes:RoundRectangle CornerRadius="18"/>
+                                <shapes:RoundRectangle CornerRadius="24" />
                             </Border.StrokeShape>
 
+                            <!-- КРУГИ-ЖИДКОСТИ (вместо прямоугольных слоёв) -->
                             <VerticalStackLayout VerticalOptions="End"
-                           BindableLayout.ItemsSource="{Binding Segments}">
+                                                 BindableLayout.ItemsSource="{Binding Segments}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Style="{StaticResource LayerStyle}"
-                    BackgroundColor="{Binding ColorHex}"
-                    HeightRequest="{Binding Amount, Converter={StaticResource AmountToHeight}}" />
+                                        <shapes:Ellipse
+                                            Margin="{StaticResource DotMargin}"
+                                            HorizontalOptions="Center"
+                                            WidthRequest="{Binding Amount, Converter={StaticResource AmountToHeight}, ConverterParameter={StaticResource DotUnitPx}}"
+                                            HeightRequest="{Binding Amount, Converter={StaticResource AmountToHeight}, ConverterParameter={StaticResource DotUnitPx}}">
+                                            <shapes:Ellipse.Fill>
+                                                <SolidColorBrush Color="{Binding ColorHex}" />
+                                            </shapes:Ellipse.Fill>
+                                        </shapes:Ellipse>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
                         </Border>
+
+                        <!-- 2) Внешний контур стекла -->
+                        <shapes:RoundRectangle
+                            Stroke="{StaticResource GlassStroke}"
+                            Fill="{StaticResource GlassFill}"
+                            StrokeThickness="2"
+                            CornerRadius="40" />
+
+                        <!-- 3) Горлышко -->
+                        <Grid VerticalOptions="Start" Margin="12,6,12,0" HeightRequest="22">
+                            <shapes:Ellipse Stroke="{StaticResource GlassStroke}" StrokeThickness="2" />
+                            <shapes:Ellipse Margin="2" Fill="#00000000" Stroke="#00000000" />
+                        </Grid>
                     </Grid>
                 </DataTemplate>
-
             </CollectionView.ItemTemplate>
         </CollectionView>
     </Grid>

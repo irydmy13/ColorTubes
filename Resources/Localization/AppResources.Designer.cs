@@ -61,6 +61,15 @@ namespace ColorTubes.Resources.Localization {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Применить.
+        /// </summary>
+        public static string Apply {
+            get {
+                return ResourceManager.GetString("Apply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Сортировка цветов.
         /// </summary>
         public static string AppTitle {

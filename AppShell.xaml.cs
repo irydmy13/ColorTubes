@@ -8,8 +8,6 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        Routing.RegisterRoute("game", typeof(GamePage));
-        Routing.RegisterRoute("rating", typeof(RatingPage));
-        Routing.RegisterRoute("settings", typeof(SettingsPage));
+        Routing.RegisterRoute("game", typeof(ColorTubes.Views.GamePage));
     }
 }

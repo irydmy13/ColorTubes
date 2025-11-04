@@ -43,9 +43,11 @@ public static class LevelLayouts
 
     private static Tube T(params string?[] topToBottom)
     {
+        // нижний элемент — первый
         var segs = new ObservableCollection<LiquidSegment>();
-        foreach (var c in topToBottom)
-            if (c != null) segs.Add(new LiquidSegment { ColorHex = c, Amount = 1 });
+        // разворачиваем массив, чтобы первый (дно) был в начале
+        foreach (var c in topToBottom.Reverse())
+            if (c != null) segs.Add(new() { ColorHex = c, Amount = 1 });
         return new Tube { Segments = segs };
     }
 
@@ -89,6 +91,7 @@ public static class LevelLayouts
         for (int t = 0; t < colorTubes; t++)
         {
             var segs = new ObservableCollection<LiquidSegment>();
+            // берём 4 цвета для этой колбы (порядок в pool — от низа к верху):
             for (int k = 0; k < capacity; k++)
                 segs.Add(new LiquidSegment { ColorHex = pool[idx++], Amount = 1 });
 

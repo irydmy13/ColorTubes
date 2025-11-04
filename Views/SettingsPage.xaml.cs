@@ -1,6 +1,5 @@
-using ColorTubes.Helpers;
-using ColorTubes.Services;
-using ColorTubes.ViewModels;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 
 namespace ColorTubes.Views;
 
@@ -9,50 +8,41 @@ public partial class SettingsPage : ContentPage
     public SettingsPage()
     {
         InitializeComponent();
-        
-        BindingContext = ServiceHelper.GetService<SettingsViewModel>();
     }
 
-
-    private void LangRu_Clicked(object? sender, EventArgs e)
+    protected override void OnAppearing()
     {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Language = "ru";
-        vm.SaveCommand.Execute(null);
+        base.OnAppearing();
+
+        // выставим текущий €зык в пикере
+        var code = Preferences.Get("lang", "ru");
+        LangPicker.SelectedIndex = code switch
+        {
+            "ru" => 0,
+            "et" => 1,
+            "en" => 2,
+            _ => 0
+        };
     }
 
-    private void LangEn_Clicked(object? sender, EventArgs e)
+    private async void OnApplyLangClicked(object sender, EventArgs e)
     {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Language = "en";
-        vm.SaveCommand.Execute(null);
-    }
+        if (LangPicker.SelectedItem is not string item) return;
 
-    private void LangEt_Clicked(object? sender, EventArgs e)
-    {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Language = "et";
-        vm.SaveCommand.Execute(null);
-    }
+        // строка вида "ru Ч –усский"
+        var code = item.Split('Ч')[0].Trim().ToLowerInvariant();
 
-    private void ThemeSystem_Clicked(object? sender, EventArgs e)
-    {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Theme = AppThemeOption.System;
-        vm.SaveCommand.Execute(null);
-    }
+        Preferences.Set("lang", code);
+        App.ApplyCulture(code);
+        App.RestartShell(); // обновл€ем все x:Static ресурсы на страницах
 
-    private void ThemeLight_Clicked(object? sender, EventArgs e)
-    {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Theme = AppThemeOption.Light;
-        vm.SaveCommand.Execute(null);
-    }
-
-    private void ThemeDark_Clicked(object? sender, EventArgs e)
-    {
-        var vm = (SettingsViewModel)BindingContext;
-        vm.Theme = AppThemeOption.Dark;
-        vm.SaveCommand.Execute(null);
+        // маленький визуальный отклик
+        if (HintLabel is not null)
+        {
+            HintLabel.Text = "язык применЄн";
+            await HintLabel.FadeTo(1, 150);
+            await Task.Delay(700);
+            await HintLabel.FadeTo(0.0, 200);
+        }
     }
 }

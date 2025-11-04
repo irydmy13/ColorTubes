@@ -18,7 +18,8 @@ public partial class StartPage : ContentPage
         if (string.IsNullOrWhiteSpace(name)) return;
 
         Preferences.Set("PlayerName", name.Trim());
-        await Shell.Current.GoToAsync("///main/gameTab");
+        await Shell.Current.GoToAsync("///main/menu");
+        await Shell.Current.GoToAsync("game");
     }
     private async void OnRatingClicked(object sender, EventArgs e)
     {

@@ -31,6 +31,16 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.RatingPage>();
         builder.Services.AddTransient<Views.GamePage>();
 
+        // Сервисы
+        builder.Services.AddSingleton<DatabaseService>();
+
+        // ViewModels
+        builder.Services.AddTransient<ColorTubes.ViewModels.GameViewModel>();
+
+        // Pages
+        builder.Services.AddTransient<ColorTubes.Views.GamePage>();
+
+
         var app = builder.Build();
 
         var db = app.Services.GetRequiredService<DatabaseService>();

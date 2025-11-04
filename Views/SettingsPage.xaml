@@ -1,60 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="ColorTubes.Views.SettingsPage"
-    x:Name="SettingsRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Настройки">
+    xmlns:resources="clr-namespace:ColorTubes.Resources.Localization">
 
-    <!-- ВАЖНО: здесь НЕТ ContentPage.BindingContext! Его задаём в .xaml.cs -->
+    <VerticalStackLayout Padding="16" Spacing="12">
+        <Label Text="{x:Static resources:AppResources.Settings_Language}"
+               FontSize="18" />
 
-    <ScrollView Padding="16">
-        <VerticalStackLayout Spacing="18">
+        <!-- Список языков -->
+        <Picker x:Name="LangPicker" Title="{x:Static resources:AppResources.Settings_Language}">
+            <Picker.Items>
+                <x:String>ru — Русский</x:String>
+                <x:String>et — Eesti</x:String>
+                <x:String>en — English</x:String>
+            </Picker.Items>
+        </Picker>
 
-            <!-- Язык -->
-            <Frame Padding="12" CornerRadius="12">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Язык" FontAttributes="Bold" FontSize="18" />
-                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="12">
-                        <!-- используем заготовленные png-флаги -->
-                        <ImageButton Source="flag_ru.png" WidthRequest="48" HeightRequest="32"
-                                     BackgroundColor="Transparent"
-                                     Clicked="LangRu_Clicked" />
-                        <ImageButton Grid.Column="1" Source="flag_en.png" WidthRequest="48" HeightRequest="32"
-                                     BackgroundColor="Transparent"
-                                     Clicked="LangEn_Clicked" />
-                        <ImageButton Grid.Column="2" Source="flag_et.png" WidthRequest="48" HeightRequest="32"
-                                     BackgroundColor="Transparent"
-                                     Clicked="LangEt_Clicked" />
-                    </Grid>
-                    <Label Text="{Binding Language, StringFormat='Текущий: {0}'}"
-                           TextColor="#888" FontSize="12"/>
-                </VerticalStackLayout>
-            </Frame>
+        <Button Text="{x:Static resources:AppResources.Apply}"
+                Clicked="OnApplyLangClicked"
+                BackgroundColor="#2D3AFE"
+                TextColor="White"
+                CornerRadius="10" />
 
-            <!-- Тема -->
-            <Frame Padding="12" CornerRadius="12">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Тема" FontAttributes="Bold" FontSize="18" />
-                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                        <Button Text="Системная" Clicked="ThemeSystem_Clicked" />
-                        <Button Grid.Column="1" Text="Светлая"  Clicked="ThemeLight_Clicked" />
-                        <Button Grid.Column="2" Text="Тёмная"    Clicked="ThemeDark_Clicked" />
-                    </Grid>
-                    <Label Text="{Binding Theme, StringFormat='Текущая: {0}'}"
-                           TextColor="#888" FontSize="12"/>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Звук -->
-            <Frame Padding="12" CornerRadius="12">
-                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                    <Label Text="Звук" VerticalOptions="Center"/>
-                    <Switch Grid.Column="1" IsToggled="{Binding SoundOn}" />
-                </Grid>
-            </Frame>
-
-            <Button Text="Сохранить" Command="{Binding SaveCommand}" />
-        </VerticalStackLayout>
-    </ScrollView>
+        <!-- по желанию -->
+        <Label x:Name="HintLabel" Text="" FontSize="12" Opacity="0.8"/>
+    </VerticalStackLayout>
 </ContentPage>
